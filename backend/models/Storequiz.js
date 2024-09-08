@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 // Define the schema for Createquiz
 const CreatequizSchema = new mongoose.Schema({
   userId: { type: String, required: true }, 
-  quizCreatorName : { type: String, required: true }, 
   quizName: { type: String, required: true }, 
   quizCode: { type: String, required: true }, 
   questions: [{

@@ -4,7 +4,7 @@ const queationsdetailscreated = (selectedQuiz,setView) => {
     return (
         <div className='fixed w-full h-full bg-slate-500 top-0 lef-0 right-0 bottom-0 flex justify-center items-center bg-opacity-40'>
         <div className='bg-white p-4 pb-12 rounded w-full max-w-2xl h-full max-h-[80%] overflow-hidden'>
-        <div className="m-6 mb-3 p-10 bg-gray-50 border border-gray-200 rounded-lg shadow-md overflow-y-scroll h-full">
+        <div className="m-6 mb-3 p-10 bg-gray-50 border border-gray-200 rounded-lg shadow-md overflow-y-scroll h-full scrollbar-hide">
             <div className='flex justify-between items-center pb-3 '>
             <h2 className="text-xl font-semibold mb-4">Quiz Details</h2>
             <div className='w-fit border text-2xl hover:bg-red-600 cursor-pointer' onClick={() => setView(false)}>

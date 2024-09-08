@@ -8,10 +8,11 @@ const Sharecode = async (req, res) => {
     const userId = req.userId; // Assuming the userId is available in the request object
 
     // Fetch the quiz from the Createquiz model
+    console.log(quizCode)
     const quiz = await Createquiz.findOne({ quizCode });
 
     if (!quiz) {
-      return res.status(404).send({ message: "Quiz not found" });
+      return res.status(404).json({ message: "Quiz not found" });
     }
 
     // Check if the user has already taken this quiz
@@ -20,12 +21,13 @@ const Sharecode = async (req, res) => {
     if (existingUserQuiz) {
       return res
         .status(400)
-        .send({ message: "User has already taken this quiz" });
+        .json({ message: "User has already taken this quiz" });
     }
 
     // If no existing entry, create a new UserQuiz entry
     const userQuiz = new UserQuiz({
       quizCode: quiz.quizCode,
+      quizName: quiz.quizName,
       quizCreatorId: quiz.userId, // Creator of the quiz
       userId, // User who is taking the quiz
       questions: quiz.questions.map((question) => ({
@@ -39,13 +41,13 @@ const Sharecode = async (req, res) => {
 
     await userQuiz.save();
 
-    res.status(200).send({
+    res.status(200).json({
       message: "Quiz successfully shared with the user",
       success: true,
     });
   } catch (error) {
     console.error("Error sharing quiz:", error.message);
-    res.status(500).send({
+    res.status(500).json({
       message: "Error sharing quiz",
       error: error.message,
     });

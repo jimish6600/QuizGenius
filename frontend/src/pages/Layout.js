@@ -4,11 +4,11 @@ import Navbar from '../components/Navbar'
 
 const Layout = () => {
   return (
-    <div className="layout"> 
-        <div className="navbar">
+    <div className="flex flex-col h-screen"> 
+        <div className="h-16">
             <Navbar/>
         </div>
-        <div className="content">
+        <div className="flex-grow overflow-auto bg-blue-100 scrollbar-hide">
             <Outlet/>
         </div>
     </div>

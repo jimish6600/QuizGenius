@@ -209,8 +209,8 @@ const QuizManager = () => {
                   />
                   <div className="w-11 h-6 bg-gray-200 rounded-full shadow-inner"></div>
                   <div
-                    className={`absolute w-4 h-4 bg-white rounded-full shadow transform transition-transform ${
-                      quiz.navigate ? 'translate-x-5 bg-green-500' : 'translate-x-1 bg-red-500'
+                    className={`absolute w-4 h-4 rounded-full shadow transform transition-transform ${
+                      quiz.navigate ? 'inline-block w-4 h-4 bg-green-600 translate-x-5 shadow-[0_0_10px_#16a34a] rounded-full' : 'inline-block w-4 h-4 bg-red-600 translate-x-1  shadow-[0_0_10px_#dc2626] rounded-full'
                     }`}
                     style={{ transition: 'transform 0.3s ease' }}
                   ></div>

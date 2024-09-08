@@ -1,24 +1,71 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const AccessQuiz = () => {
   const [quizCode, setQuizCode] = useState('');
-  const [quizzes, setQuizzes] = useState([
-    { name: 'Math Quiz', code: '1234-5678-9012', totalMarks: 100, canNavigate: true },
-    { name: 'Science Quiz', code: '5678-9012-3456', totalMarks: 80, canNavigate: false },
-    { name: 'History Quiz', code: '9012-3456-7890', totalMarks: 90, canNavigate: true },
-    { name: 'Geography Quiz', code: '3456-7890-1234', totalMarks: 70, canNavigate: false },
-    // Add more quiz data for testing scroll behavior
-  ]);
+  const [quizzes, setQuizzes] = useState([]);
+  const authToken = localStorage.getItem('authToken');
 
-  const handleAddQuiz = () => {
-    // Function to add quiz to the list
-    // Add logic here to validate and add quiz
+  const fetchUserQuizzes = async () => {
+    try {
+      console.log(authToken)
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/sharetest/receivedquiz`, // Adjust endpoint as needed
+        {
+          headers: {
+            authorization: authToken, // Set the token in the Authorization header
+          },
+        }
+      );
+      if(response.data.success){
+        setQuizzes(response.data.quizzes)
+        console.log(response.data.quizzes)
+        toast.success(response.data.message)
+      }else{
+        toast.error(response.data.message)
+      }
+    } catch (error) {
+      toast.error( error.response.data.message);
+    }
   };
 
+  const handleAddQuiz = async() => {
+      try {
+        // Make the API request with axios
+        const response = await axios.post(
+          `${process.env.REACT_APP_BACKEND_URL}/sharetest/sharecode/${quizCode}`,
+          {}, // Body can be empty if you're not sending any data
+          {
+            headers: {
+              authorization: authToken,  // Set the token in the Authorization header
+            },
+          }
+        );
+        
+        // Handle the successful response
+        setQuizCode("");
+        if(response.data.success){
+          toast.success(response.data.message)
+          fetchUserQuizzes();
+        }else{
+          toast.error(response.data.message)
+        }
+    
+      } catch (error) {
+        setQuizCode("");
+        toast.error(error.response.data.message)
+      }
+  };
+
+  useEffect(()=>{
+    fetchUserQuizzes();
+  },[])
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start bg-gray-100 py-10">
+    <div className="flex flex-col items-center justify-start bg-blue-200 py-10 h-full">
       {/* Quiz Code Input Section */}
-      <div className="bg-white shadow-md rounded-lg p-6 mb-8 w-full max-w-lg text-center">
+      <div className="bg-white shadow-md rounded-lg p-6 mb-4 w-full max-w-lg text-center">
         <h2 className="text-3xl font-semibold mb-4">Add Quiz</h2>
         <div className="flex items-center justify-center space-x-4">
           <input
@@ -40,7 +87,7 @@ const AccessQuiz = () => {
       {/* Quizzes List Section */}
       <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-4xl">
         <h2 className="text-3xl font-semibold mb-4 text-center">Your Quizzes</h2>
-        <div className="max-h-96 overflow-y-auto">
+        <div className="max-h-80 h-full overflow-scroll scrollbar-hide"> {/* Hide scrollbar */}
           <table className="table-auto w-full text-left">
             <thead>
               <tr>
@@ -54,11 +101,11 @@ const AccessQuiz = () => {
             <tbody>
               {quizzes.map((quiz, index) => (
                 <tr key={index} className="border-t">
-                  <td className="px-4 py-2 text-center">{quiz.name}</td>
-                  <td className="px-4 py-2 text-center">{quiz.code}</td>
+                  <td className="px-4 py-2 text-center">{quiz.quizName}</td>
+                  <td className="px-4 py-2 text-center">{quiz.quizCode}</td>
                   <td className="px-4 py-2 text-center">{quiz.totalMarks}</td>
                   <td className="px-4 py-2 text-center">
-                    {quiz.canNavigate ? (
+                    {quiz.navigate ? (
                       <span className="inline-block w-4 h-4 bg-green-500 rounded-full"></span>
                     ) : (
                       <span className="inline-block w-4 h-4 bg-red-500 rounded-full"></span>

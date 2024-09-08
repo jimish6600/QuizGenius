@@ -7,6 +7,7 @@ import Layout from './pages/Layout';
 import QuizManager from './pages/Createquiz';
 import AccessQuiz from './pages/AccessQuiz';
 import AttemptedQuizzes from './pages/AttemptedQuizzes';
+import './App.css';
 
 function App() {
   
