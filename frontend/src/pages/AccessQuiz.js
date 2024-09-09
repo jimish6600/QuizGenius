@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { Link, useNavigate } from 'react-router-dom';
 
 const AccessQuiz = () => {
   const [quizCode, setQuizCode] = useState('');
   const [quizzes, setQuizzes] = useState([]);
   const authToken = localStorage.getItem('authToken');
+  const navigate = useNavigate();
 
   const fetchUserQuizzes = async () => {
     try {
@@ -20,8 +22,6 @@ const AccessQuiz = () => {
       );
       if(response.data.success){
         setQuizzes(response.data.quizzes)
-        console.log(response.data.quizzes)
-        toast.success(response.data.message)
       }else{
         toast.error(response.data.message)
       }
@@ -62,6 +62,26 @@ const AccessQuiz = () => {
     fetchUserQuizzes();
   },[])
 
+  const startquiz = async(value) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/runtest/start/${value}`, // The endpoint URL
+        {
+          headers: {
+            authorization: authToken, // Set the token in the Authorization header
+          },
+        }
+      );
+      if(response.data.success){
+        toast.success(response.data.message)
+        navigate(`/quizruning/${response.data.data}`)
+      }else{
+        toast.error(response.data.message)
+      }
+  
+    } catch (error) {
+      toast.error(error.response.data.message)
+    }
+  };
   return (
     <div className="flex flex-col items-center justify-start bg-blue-200 py-10 h-full">
       {/* Quiz Code Input Section */}
@@ -112,7 +132,7 @@ const AccessQuiz = () => {
                     )}
                   </td>
                   <td className="px-4 py-2 text-center">
-                    <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">
+                    <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition" onClick={()=>startquiz(quiz.quizCode)}>
                       Attempt Quiz
                     </button>
                   </td>

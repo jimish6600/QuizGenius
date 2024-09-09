@@ -15,7 +15,7 @@ const Navbar = () => {
     <nav className="bg-gray-800 p-4">
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-white text-4xl font-bold ">
-          Product
+          QuizGenius 
         </div>
         <div className="flex space-x-4 text-lg">
           <Link to={"/accessquiz"} href="/accessquiz" className="text-white hover:text-gray-300">

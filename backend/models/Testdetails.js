@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const TestDetailsSchema = new mongoose.Schema(
   {
     quizCode: { type: String, required: true }, // Quiz code
+    quizName:  { type: String, required: true },  
     quizCreatorId: { type: String, required: true }, // The ID of the quiz creator
     userId: { type: String, required: true }, // The user who took the quiz
     questions: [

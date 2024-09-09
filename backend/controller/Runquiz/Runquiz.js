@@ -11,7 +11,7 @@ const copyQuizData = async (req, res) => {
     const existingQuiz = await RunQuiz.findOne({ quizCode: quizCode, userId: userId });
 
     if (existingQuiz) {
-      return res.status(400).send({
+      return res.status(400).json({
         message: "Quiz already taken by this user.",
         data: existingQuiz
       });
@@ -21,12 +21,13 @@ const copyQuizData = async (req, res) => {
     const quiz = await UserQuiz.findOne({ quizCode });
 
     if (!quiz) {
-      return res.status(404).send({ message: "Quiz not found" });
+      return res.status(404).json({ message: "Quiz not found" });
     }
 
     // Copy the data from UserQuiz to RunQuiz
     const newRunQuiz = new RunQuiz({
       quizCode: quizCode, // Correct key and value
+      quizName:  quiz.userId, 
       quizCreatorId: quiz.userId,
       userId: userId, 
       questions: quiz.questions.map((q) => ({
@@ -41,19 +42,16 @@ const copyQuizData = async (req, res) => {
 
     await newRunQuiz.save();
 
-    res.status(200).send({
+    res.status(200).json({
       message: "Quiz copied successfully",
-      body : {
-        quizCode: quizCode, // Send the quizCode
-        numberOfQuestions: newRunQuiz.questions.length, // Send the number of questions
-        navigate: newRunQuiz.navigate
-      }
+      success:true,
+      data: newRunQuiz._id
     });
   } catch (error) {
-    console.error("Error copying quiz data:", error.message);
-    res.status(500).send({
+    res.status(500).json({
       message: "Error copying quiz data",
       error: error.message,
+      success : false
     });
   }
 };

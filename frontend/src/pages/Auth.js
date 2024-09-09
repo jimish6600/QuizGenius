@@ -51,7 +51,7 @@ const Auth = () => {
           setUserName(response.username);  // Set username
           setCurrectLogin(true);  // Update login status
           toast.success('Login successful');  // Show success message
-          navigate("/");  // Redirect to homepage
+          navigate("/accessquiz");  // Redirect to homepage
         } else {
           toast.error(response.message);  // Display error message from server
         }

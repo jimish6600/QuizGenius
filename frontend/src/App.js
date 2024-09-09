@@ -8,6 +8,7 @@ import QuizManager from './pages/Createquiz';
 import AccessQuiz from './pages/AccessQuiz';
 import AttemptedQuizzes from './pages/AttemptedQuizzes';
 import './App.css';
+import Quizruning from './pages/Quizruning';
 
 function App() {
   
@@ -35,7 +36,12 @@ function App() {
           element:<AttemptedQuizzes/>
         },
       ]
-    }
+      
+    },
+    {
+      path : "quizruning/:quizCode",
+      element : <Quizruning/>
+    },
   ]);
   return (
     <>

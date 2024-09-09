@@ -130,6 +130,7 @@ const handleQuizUpdate = async (req, res) => {
     if (status === "submitted") {
       const testDetails = new TestDetails({
         quizCode: runQuizEntry.quizCode,
+        quizName: runQuizEntry.quizName,
         quizCreatorId: runQuizEntry.quizCreatorId,
         userId: runQuizEntry.userId,
         questions: runQuizEntry.questions,
