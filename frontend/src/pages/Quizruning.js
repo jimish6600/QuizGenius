@@ -1,60 +1,139 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
-// Sample Quiz Data
-const sampleQuizData = {
-  questions: [
-    {
-      text: "What is the capital of France?",
-      options: ["Paris", "London", "Berlin", "Madrid"]
-    },
-    {
-      text: "Which planet is known as the Red Planet?",
-      options: ["Earth", "Mars", "Jupiter", "Saturn"]
-    },
-    {
-      text: "What is the largest mammal?",
-      options: ["Elephant", "Blue Whale", "Giraffe", "Hippopotamus"]
-    }
-  ]
-};
 
 const Quizruning = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState([]);
-  const [sizeOfQuiz , setSizeOfQuiz] = useState(Array(25).fill(false));
+  const [currentQuestion, setCurrentQuestion] = useState({
+    text : "NaN",
+    options : []
+  });
+  const [navigate , setNavigate] = useState(false);
+  const [fetchData,setFetchData] = useState(false);
+  const [answers, setAnswers] = useState("nan");
+  const [sizeOfQuiz , setSizeOfQuiz] = useState([]);
+  const [currentStatus , setCurrentStatus] = useState("running");
   const params = useParams();
+  const authToken = localStorage.getItem('authToken');
+  const navigateto = useNavigate();
 
   const handleAnswerChange = (e, questionIndex) => {
     const selectedAnswer = e.target.value;
-    const updatedAnswers = [...answers];
-    updatedAnswers[questionIndex] = selectedAnswer;
-    setAnswers(updatedAnswers);
+    setAnswers(selectedAnswer);
   };
 
-  const handleNext = () => {
-    if (currentQuestionIndex < sampleQuizData.questions.length - 1) {
+  const handleNext = async() => {
+    
+    if (currentQuestionIndex < sizeOfQuiz.length - 1) {
+      setFetchData(true);
+      await fetchqueationsdetials(currentQuestionIndex+1);
+      setFetchData(false);
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     }
   };
 
-  const handlePrev = () => {
+  const handlePrev = async() => {
+    
     if (currentQuestionIndex > 0) {
+      setFetchData(true);
+      await fetchqueationsdetials(currentQuestionIndex-1);
+      setFetchData(false);
       setCurrentQuestionIndex(currentQuestionIndex - 1);
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     // Handle quiz submission
-    console.log('Quiz submitted:', answers);
-    alert('Quiz submitted! Check console for answers.');
+    setFetchData(true);
+    try {
+      const response = await axios({
+        method: 'post', // Switch to 'post' to send a body
+        url: `${process.env.REACT_APP_BACKEND_URL}/runtest/handlequizupdate/${params.quizCode}`,
+        data: {
+          question: currentQuestion.text,
+          answer: answers,
+          nextQuestionNumber: 1,
+          status: "submitted",
+        },
+        headers: {
+          authorization: authToken, // Set your authentication token here
+        },
+      });
+      
+        // Handle the response
+        if(response.data.success){
+          toast.success("Quiz submitted successfully.")
+          navigateto("/attemptedquizzes")
+        }else{
+          toast.error(response?.data?.message || 'An error occurred')
+        }
+        
+      } catch (error) {
+        // Handle errors
+        toast.error(error.response?.data?.message || 'An error occurred')
+      }
+      setFetchData(false);
   };
 
-  const { questions } = sampleQuizData;
-  const currentQuestion = questions[currentQuestionIndex];
+  const fetchqueationsdetials = async(indexq) => {
+    try {
+      const response = await axios({
+        method: 'post', // Switch to 'post' to send a body
+        url: `${process.env.REACT_APP_BACKEND_URL}/runtest/handlequizupdate/${params.quizCode}`,
+        data: {
+          question: currentQuestion.text,
+          answer: answers,
+          nextQuestionNumber: indexq + 1,
+          status: currentStatus,
+        },
+        headers: {
+          authorization: authToken, // Set your authentication token here
+        },
+      });
+      
+        // Handle the response
+        console.log(response.data)
+        if(response.data.success){
+          
+          setCurrentQuestion({
+            text : response.data.data.nextQuestion.question,
+            options : response.data.data.nextQuestion.options
+          })
+        }else{
+          toast.error(response?.data?.message || 'An error occurred')
+        }
+        
+      } catch (error) {
+        // Handle errors
+        toast.error(error.response?.data?.message || 'An error occurred')
+      }
+}
 
   useEffect(()=>{
-    console.log(params.quizCode);
+    const fetchbasicinfomation = async() => {
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/runtest/getBasicinfomation/${params.quizCode}`, 
+            {
+              headers: {
+                authorization: authToken, // Set your authentication token here
+              },
+            });
+        
+            // Handle the response
+            console.log('Response Data:', response.data);
+            setSizeOfQuiz(Array(response.data.numberOfQuestions).fill(false))
+            setNavigate(response.data.navigate)
+          } catch (error) {
+            // Handle errors
+            toast.error(error.response?.data?.message || 'An error occurred')
+          }
+    }
+
+
+    fetchbasicinfomation();
+    fetchqueationsdetials(0);
   },[])
   return (
     <div className="flex h-screen">
@@ -88,7 +167,7 @@ const Quizruning = () => {
                   id={`option${idx}`}
                   name={`question${currentQuestionIndex}`}
                   value={option}
-                  checked={answers[currentQuestionIndex] === option}
+                  checked={answers === option}
                   onChange={(e) => handleAnswerChange(e, currentQuestionIndex)}
                   className="form-radio text-blue-500"
                 />
@@ -101,21 +180,39 @@ const Quizruning = () => {
         </div>
 
         <div className="flex justify-between items-center">
-          <button
+          {
+            navigate ? (
+              fetchData ? (<button
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
+              >
+                waiting..
+              </button>) : (<button
             onClick={handlePrev}
             disabled={currentQuestionIndex === 0}
             className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
           >
             Previous
-          </button>
-          {currentQuestionIndex === questions.length - 1 ? (
-            <button
+          </button>)
+            ):(<> </>)
+          }
+          
+          {currentQuestionIndex === sizeOfQuiz.length - 1 ? (
+            fetchData ? (<button
+              className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
+            >
+              waiting..
+            </button>):<button
               onClick={handleSubmit}
               className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
             >
               Submit
             </button>
           ) : (
+            fetchData ? (<button
+              className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
+            >
+              waiting..
+            </button>) :
             <button
               onClick={handleNext}
               className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
