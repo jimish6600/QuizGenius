@@ -57,14 +57,18 @@ const generateResponse = async (text) => {
 
 const handleQuizUpdate = async (req, res) => {
   try {
-    const { quizCode, question, answer, nextQuestionNumber, status } = req.body;
+    const { question, answer, nextQuestionNumber, status } = req.body;
     const userId = req.userId;
+    const {_id} = req.params;
+
+    console.log(req.body ,"body")
 
     // Check if the quiz exists for the user in the RunQuiz model
-    const runQuizEntry = await RunQuiz.findOne({ quizCode, userId });
+    const runQuizEntry = await RunQuiz.findById(_id);
     if (!runQuizEntry) {
-      return res.status(404).send({
+      return res.status(404).json({
         message: "No active quiz found for this user with the provided quiz code.",
+        success : false
       });
     }
 
@@ -124,10 +128,11 @@ const handleQuizUpdate = async (req, res) => {
     }
 
     // Await the response from generateResponse before proceeding
-    const feedbackofquiz = await generateResponse(runQuizEntry);
+    
 
     // If the quiz status is 'submitted', move data to TestDetails and delete from RunQuiz
     if (status === "submitted") {
+      const feedbackofquiz = await generateResponse(runQuizEntry);
       const testDetails = new TestDetails({
         quizCode: runQuizEntry.quizCode,
         quizName: runQuizEntry.quizName,
@@ -140,39 +145,43 @@ const handleQuizUpdate = async (req, res) => {
       });
 
       await testDetails.save();
-      await RunQuiz.deleteOne({ quizCode, userId });
+      await RunQuiz.deleteOne({_id});
 
-      return res.status(200).send({
+      return res.status(200).json({
         message: "Quiz submitted and moved to test details.",
         data: feedbackofquiz,
+        success : true
       });
     }
 
     if (check) {
-      return res.status(400).send({
+      return res.status(400).json({
         message: "You cannot change the answer",
         data: {
           nextQuestionNumber,
           quizCode: runQuizEntry.quizCode,
           nextQuestion: nextQuestion || "No more questions or question already answered.",
         },
+        success : true
       });
     }
 
     // If no other status, just respond with the updated data
-    res.status(200).send({
+    res.status(200).json({
       message: "Quiz updated successfully.",
       data: {
         nextQuestionNumber,
         quizCode: runQuizEntry.quizCode,
         nextQuestion: nextQuestion || "No more questions or question already answered.",
       },
+      success : true
     });
   } catch (error) {
     console.error("Error handling quiz update:", error.message);
-    res.status(500).send({
+    res.status(500).json({
       message: "Error handling quiz update",
       error: error.message,
+      success : false
     });
   }
 };

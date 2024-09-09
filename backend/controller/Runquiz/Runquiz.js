@@ -27,7 +27,7 @@ const copyQuizData = async (req, res) => {
     // Copy the data from UserQuiz to RunQuiz
     const newRunQuiz = new RunQuiz({
       quizCode: quizCode, // Correct key and value
-      quizName:  quiz.userId, 
+      quizName:  quiz.quizName, 
       quizCreatorId: quiz.userId,
       userId: userId, 
       questions: quiz.questions.map((q) => ({
