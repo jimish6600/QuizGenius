@@ -85,6 +85,7 @@ const handleQuizUpdate = async (req, res) => {
         nextQuestion = {
           question: questionData.question,
           options: questionData.options,
+          userAnswer: questionData.userAnswer,
         };
       }
     }
@@ -161,6 +162,7 @@ const handleQuizUpdate = async (req, res) => {
           nextQuestionNumber,
           quizCode: runQuizEntry.quizCode,
           nextQuestion: nextQuestion || "No more questions or question already answered.",
+          userAnswer: questionData.userAnswer
         },
         success : true
       });
@@ -174,6 +176,7 @@ const handleQuizUpdate = async (req, res) => {
         quizCode: runQuizEntry.quizCode,
         nextQuestion: nextQuestion || "No more questions or question already answered.",
       },
+       
       success : true
     });
   } catch (error) {

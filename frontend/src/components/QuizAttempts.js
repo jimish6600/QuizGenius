@@ -65,6 +65,7 @@ const QuizAttempts = ({ selectedQuiz, setShowAttempts}) => {
                   <div>
                     <p className="text-md font-medium">Date: {convertUTCToIST(attempt.data)} </p>
                     <p className="text-md">Navigate: {attempt.navigate ? 'Allowed' : 'Not Allowed'}</p>
+                    <p className="text-md">Score: {attempt.score}/{attempt.totalqueations}</p>
                   </div>
                   <button
                     className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md transition-transform transform hover:scale-105"

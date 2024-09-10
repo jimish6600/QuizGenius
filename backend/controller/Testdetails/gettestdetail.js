@@ -21,7 +21,9 @@ const getTestDetails = async (req, res) => {
     const result = quizzes.map(quiz => ({
       _id: quiz._id,
       navigate: quiz.navigate, // Assuming 'navigate' is a field in your schema
-      data: quiz.createdAt // Assuming 'createdData' is the field you want to return as 'data'
+      data: quiz.createdAt, // Assuming 'createdData' is the field you want to return as 'data'
+      score : quiz.score,
+      totalqueations: quiz.questions.length
     }));
 
     // Send the quiz data as the response

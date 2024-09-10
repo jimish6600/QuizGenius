@@ -28,6 +28,11 @@ const Quizruning = () => {
     
     if (currentQuestionIndex < sizeOfQuiz.length - 1) {
       setFetchData(true);
+      if(answers!=="nan"){
+        setSizeOfQuiz((prevSizeOfQuiz) =>
+          prevSizeOfQuiz.map((item, idx) => (idx === currentQuestionIndex ? true : item))
+        );
+      }
       await fetchqueationsdetials(currentQuestionIndex+1);
       setFetchData(false);
       setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -92,7 +97,7 @@ const Quizruning = () => {
           authorization: authToken, // Set your authentication token here
         },
       });
-      
+        
         // Handle the response
         console.log(response.data)
         if(response.data.success){
@@ -101,6 +106,7 @@ const Quizruning = () => {
             text : response.data.data.nextQuestion.question,
             options : response.data.data.nextQuestion.options
           })
+          setAnswers(response.data.data.nextQuestion.userAnswer)
         }else{
           toast.error(response?.data?.message || 'An error occurred')
         }
@@ -144,9 +150,9 @@ const Quizruning = () => {
           {sizeOfQuiz.map((value, index) => (
             <li
               key={index}
-              className={` cursor-pointer p-2 pl-1 pr-1 mb-2 rounded-lg transition ${index === currentQuestionIndex ? 'bg-blue-500 text-white' : value?'bg-green-500 text-white': 'hover:bg-gray-200'}`}
+              className={` cursor-pointer p-2 pl-1 pr-1 mb-2 ml-1 rounded-lg transition ${index === currentQuestionIndex ? 'bg-blue-500 text-white' : value?'bg-green-500 text-white': 'hover:bg-gray-200'}`}
             >
-              <div className={`w-8 h-8 flex items-center justify-center m-1 font-semibold rounded-full ${index === currentQuestionIndex ? 'bg-blue-700 text-white' : 'bg-gray-300 text-gray-700'}`}>
+              <div className={`w-8 h-8 flex items-center justify-center m-1 font-semibold rounded-full ${index === currentQuestionIndex ? 'bg-blue-700 text-white' : value ? 'bg-green-700 text-white' :'bg-gray-300 text-gray-700'}`}>
                 {index + 1}
               </div>
             </li>
@@ -155,72 +161,84 @@ const Quizruning = () => {
       </div>
 
       {/* Question Area */}
-      <div className="w-3/4 p-8">
-        <h2 className="text-2xl font-bold mb-6">Question {currentQuestionIndex + 1}</h2>
-        <div className="mb-6">
-          <p className="text-lg mb-4">{currentQuestion.text}</p>
-          <div className="space-y-4">
-            {currentQuestion.options.map((option, idx) => (
-              <div key={idx} className="flex items-center">
-                <input
-                  type="radio"
-                  id={`option${idx}`}
-                  name={`question${currentQuestionIndex}`}
-                  value={option}
-                  checked={answers === option}
-                  onChange={(e) => handleAnswerChange(e, currentQuestionIndex)}
-                  className="form-radio text-blue-500"
-                />
-                <label htmlFor={`option${idx}`} className="ml-3 text-lg">
-                  {option}
-                </label>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* Main content for the current question */}
+  <div className="w-3/4 p-8 flex flex-col justify-between">
+    {/* Question content */}
+    <div className="bg-white p-6 rounded-lg shadow-lg flex-grow">
+      <h2 className="text-3xl font-semibold text-gray-800 mb-6">
+        Question {currentQuestionIndex + 1}
+      </h2>
+      <p className="text-lg text-gray-700 mb-6">{currentQuestion.text}</p>
+      <div className="space-y-3">
+        {currentQuestion.options.map((option, idx) => (
+          <label
+            key={idx}
+            htmlFor={`option${idx}`}
+            className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-100 transition"
+          >
+            <input
+              type="radio"
+              id={`option${idx}`}
+              name={`question${currentQuestionIndex}`}
+              value={option}
+              checked={answers === option}
+              onChange={(e) => handleAnswerChange(e, currentQuestionIndex)}
+              className="form-radio h-5 w-5 text-blue-600 cursor-pointer"
+            />
+            <span className="ml-3 text-lg text-gray-800">{option}</span>
+          </label>
+        ))}
+      </div>
+    </div>
 
-        <div className="flex justify-between items-center">
-          {
-            navigate ? (
-              fetchData ? (<button
-                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
-              >
-                waiting..
-              </button>) : (<button
+    {/* Navigation Buttons */}
+    <div className="flex justify-between items-center mt-4">
+      {navigate ? (
+        fetchData ? (
+          <button className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+            waiting..
+          </button>
+        ) : (
+          <button
             onClick={handlePrev}
             disabled={currentQuestionIndex === 0}
-            className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
+            className={`${
+              currentQuestionIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''
+            } bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition`}
           >
             Previous
-          </button>)
-            ):(<> </>)
-          }
-          
-          {currentQuestionIndex === sizeOfQuiz.length - 1 ? (
-            fetchData ? (<button
-              className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
-            >
-              waiting..
-            </button>):<button
-              onClick={handleSubmit}
-              className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
-            >
-              Submit
-            </button>
-          ) : (
-            fetchData ? (<button
-              className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
-            >
-              waiting..
-            </button>) :
-            <button
-              onClick={handleNext}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-            >
-              Next
-            </button>
-          )}
-        </div>
+          </button>
+        )
+      ) : (
+        <></>
+      )}
+
+      {currentQuestionIndex === sizeOfQuiz.length - 1 ? (
+        fetchData ? (
+          <button className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+            waiting..
+          </button>
+        ) : (
+          <button
+            onClick={handleSubmit}
+            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
+          >
+            Submit
+          </button>
+        )
+      ) : fetchData ? (
+        <button className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+          waiting..
+        </button>
+      ) : (
+        <button
+          onClick={handleNext}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+        >
+          Next
+        </button>
+      )}
+    </div>
       </div>
     </div>
   );
