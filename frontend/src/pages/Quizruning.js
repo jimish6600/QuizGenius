@@ -21,6 +21,9 @@ const Quizruning = () => {
 
   const handleAnswerChange = (e, questionIndex) => {
     const selectedAnswer = e.target.value;
+    setSizeOfQuiz((prevSizeOfQuiz) =>
+      prevSizeOfQuiz.map((item, idx) => (idx === currentQuestionIndex ? true : item))
+    );
     setAnswers(selectedAnswer);
   };
 
@@ -28,11 +31,6 @@ const Quizruning = () => {
     
     if (currentQuestionIndex < sizeOfQuiz.length - 1) {
       setFetchData(true);
-      if(answers!=="nan"){
-        setSizeOfQuiz((prevSizeOfQuiz) =>
-          prevSizeOfQuiz.map((item, idx) => (idx === currentQuestionIndex ? true : item))
-        );
-      }
       await fetchqueationsdetials(currentQuestionIndex+1);
       setFetchData(false);
       setCurrentQuestionIndex(currentQuestionIndex + 1);

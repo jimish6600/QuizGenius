@@ -13,6 +13,7 @@ const QuizAttempts = ({ selectedQuiz, setShowAttempts}) => {
 
     const handleclickset = (value) =>{
         setAttemptedQuizzes(true);
+        
         setQuizId(value);
     }
     useEffect(()=>{
