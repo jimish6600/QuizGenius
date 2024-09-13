@@ -10,7 +10,7 @@ const getTestDetails = async (req, res) => {
     const { quizCode } = req.params;
 
     // Query to find all quizzes associated with this userId and quizCode
-    const quizzes = await TestDetails.find({ userId, quizCode });
+    const quizzes = await TestDetails.find({ userId, quizCode }).sort({ created: -1 });
 
     // Check if any quizzes were found
     if (quizzes.length === 0) {
